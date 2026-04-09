@@ -27,6 +27,9 @@ architecture arc of processor is
     signal sum_diag  : unsigned(9 downto 0); 
     signal sum_horiz : unsigned(8 downto 0); 
     signal sum_vert  : unsigned(8 downto 0); 
+    -- Delays
+    signal state2_reg : std_logic_vector(1 downto 0);
+    signal P22_reg    : unsigned(7 downto 0);
 
 begin
     
@@ -55,27 +58,30 @@ begin
             sum_diag  <= resize(P11, 10) + resize(P13, 10) + resize(P31, 10) + resize(P33, 10);
             sum_horiz <= resize(P21, 9)  + resize(P23, 9);
             sum_vert  <= resize(P12, 9)  + resize(P32, 9);
+
+            state2_reg <= state2;
+            P22_reg    <= P22;
         end if;
     end process;
 
    
-    with state2 select
+    with state2_reg select
         red_out   <= std_logic_vector(sum_horiz(8 downto 1)) when "00",
                      std_logic_vector(sum_diag(9 downto 2))  when "10", -- (B) Κέντρο Μπλε, R από διαγώνιους [cite: 40]
-                     std_logic_vector(P22)                   when "01", -- (R) Κέντρο Κόκκινο
+                     std_logic_vector(P22_reg)                   when "01", -- (R) Κέντρο Κόκκινο
                      std_logic_vector(sum_vert(8 downto 1))  when "11", -- (G2)
                      (others => '0') when others;
 
-    with state2 select
-        green_out <= std_logic_vector(P22)                   when "00",
+    with state2_reg select
+        green_out <= std_logic_vector(P22_reg)                   when "00",
                      std_logic_vector(sum_cross(9 downto 2)) when "10", -- (B) Κέντρο Μπλε, G από σταυρό [cite: 40]
                      std_logic_vector(sum_cross(9 downto 2)) when "01", -- (R) Κέντρο Κόκκινο, G από σταυρό [cite: 39]
-                     std_logic_vector(P22)                   when "11",
+                     std_logic_vector(P22_reg)                   when "11",
                      (others => '0') when others;
 
-    with state2 select
+    with state2_reg select
         blue_out  <= std_logic_vector(sum_vert(8 downto 1))  when "00",
-                     std_logic_vector(P22)                   when "10", -- (B) Κέντρο Μπλε [cite: 40]
+                     std_logic_vector(P22_reg)                   when "10", -- (B) Κέντρο Μπλε [cite: 40]
                      std_logic_vector(sum_diag(9 downto 2))  when "01", -- (R) Κέντρο Κόκκινο, B από διαγώνιους [cite: 39]
                      std_logic_vector(sum_horiz(8 downto 1)) when "11",
                      (others => '0') when others;
