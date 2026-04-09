@@ -41,8 +41,9 @@ begin
                 counter <= 1;
                 running <= '1';
             elsif running = '1' then
-                if counter = N*N+2*N+2 then --whole process finished
+                if counter = N*N+2*N+4 then --whole process finished
                     running <= '0';
+                    counter <= 0;
                 elsif (counter <= N*N-1 and valid_in = '1') or counter > N*N-1 then --raise counter
                     counter <= counter + 1;
                     if counter = 2*N+2 then --first valid 3x3 kernel
@@ -61,8 +62,9 @@ begin
         end if;
     end process;
 
-    wr_en(0) <= valid_in;
-
+    --wr_en(0) <= valid_in;
+    wr_en(0) <= '0';
+    
     rd_en(0) <= '1' when (counter >= N) else '0';
     wr_en(1) <= '1' when (counter > N) else '0';
 
@@ -80,6 +82,9 @@ begin
     --Color Decoder
     state2(1) <= '1' when (i mod 2)=0 else '0'; 
     state2(0) <= '1' when (j mod 2)=0 else '0';
+
+    valid_out       <= '1' when (counter >= 2*N+4 and counter <= N*N+2*N+4) else '0';
+    image_finished  <= '1' when counter = N*N+2*N+3 else '0';
     
     --G1 "11"
     --B  "10"
