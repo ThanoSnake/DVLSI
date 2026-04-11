@@ -74,6 +74,25 @@ architecture arch of dvlsi_lab6_top is
          );
   end component design_1_wrapper;
 
+  component debayering_filter is
+    generic (
+        N : integer := 4 
+    );
+    port (
+        clk             : in  std_logic;
+        rst_n           : in  std_logic; 
+        new_image       : in  std_logic;
+        valid_in        : in  std_logic; 
+        pixel           : in  std_logic_vector(7 downto 0); 
+        
+        valid_out       : out std_logic; 
+        image_finished  : out std_logic;
+        R               : out std_logic_vector(7 downto 0); 
+        G               : out std_logic_vector(7 downto 0); 
+        B               : out std_logic_vector(7 downto 0)
+    );
+    end component;
+
 -------------------------------------------
 -- INTERNAL SIGNAL & COMPONENTS DECLARATION
 
@@ -95,6 +114,7 @@ architecture arch of dvlsi_lab6_top is
   -- Check new_image
   signal s_new_image  : std_logic := '0';
   signal s_waiting_for_first_pixel : std_logic := '1';
+  signal s_data_out : std_logic_vector(31 downto 0);
 
 begin
 
@@ -134,13 +154,14 @@ begin
               M_AXIS_TO_ACCELERATOR_tvalid        => ps_valid,
               ------------------------------------------------------------------------------------
               -- ACCELERATOR AXI4-STREAM MASTER INTERFACE TO PL2P2-DMA AXI4-STREAM SLAVE INTERFACE
-              S_AXIS_S2MM_FROM_ACCELERATOR_tdata  => x"00" & acc_red & acc_green & acc_blue,
+              S_AXIS_S2MM_FROM_ACCELERATOR_tdata  => s_data_out,
               S_AXIS_S2MM_FROM_ACCELERATOR_tkeep  => "1111", --all bytes valid. Read them all
               S_AXIS_S2MM_FROM_ACCELERATOR_tlast  => acc_finished,
               S_AXIS_S2MM_FROM_ACCELERATOR_tready => open,
               S_AXIS_S2MM_FROM_ACCELERATOR_tvalid => acc_valid
              );
 
+    s_data_out <= x"00" & acc_red & acc_green & acc_blue;
   
     --Generate new_image signal
     process(aclk, aresetn)
