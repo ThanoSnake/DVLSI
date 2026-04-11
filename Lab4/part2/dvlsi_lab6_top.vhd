@@ -148,7 +148,7 @@ begin
         if aresetn(0) = '0' then
             s_waiting_for_first_pixel <= '1';
         elsif rising_edge(aclk) then
-            if s_new_image = '1' then
+            if s_new_image = '1' and ps_valid = '1' then
                 s_waiting_for_first_pixel <= '0';
             elsif acc_finished = '1' then
                 s_waiting_for_first_pixel <= '1';
