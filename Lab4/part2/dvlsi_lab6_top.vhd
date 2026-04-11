@@ -173,9 +173,9 @@ DEBAYER_INST : entity work.debayering_filter
         pixel               => ps_data,
         valid_out           => acc_valid,
         image_finished      => acc_finished,
-        red_out             => acc_red,
-        green_out           => acc_green,
-        blue_out            => acc_blue
+        R                   => acc_red,
+        G                   => acc_green,
+        B                   => acc_blue
     );
 
 end architecture; -- arch
